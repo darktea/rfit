@@ -19,6 +19,9 @@ pub struct Config<'a> {
     pub to_filename: &'a String,
 }
 
+/// format the file from Config.from_filename to config.to_filename
+/// # Errors
+/// if have a IO Error, return IoSnafu which keep the error context
 pub fn run(config: &Config) -> Result<()> {
     let file = File::open(config.from_filename).context(IoSnafu)?;
     let reader = BufReader::new(file);
@@ -34,23 +37,28 @@ pub fn run(config: &Config) -> Result<()> {
     let eof = "\n\n";
     for line in reader.lines() {
         let string_line = line.context(IoSnafu)?;
+        // skip specific UTF-8 char in the start of the line
         let skip_line = trim_start_str(string_line.as_str());
+        // trim all whitespace in the line
         let bytes_line = trim_ascii_whitespace(skip_line.as_bytes());
 
-        // number of current multi empty lines
+        // ignore empty lines
         if bytes_line.is_empty() {
             continue;
         }
 
+        // write line content into write buffer
         writer.write_all(bytes_line).context(IoSnafu)?;
+        // write empty line into write buffer
         writer.write_all(eof.as_bytes()).context(IoSnafu)?;
     }
+    // do flush at the last
     writer.flush().context(IoSnafu)?;
 
     Ok(())
 }
 
-pub fn trim_ascii_whitespace(x: &[u8]) -> &[u8] {
+fn trim_ascii_whitespace(x: &[u8]) -> &[u8] {
     let from = match x.iter().position(|x| !x.is_ascii_whitespace()) {
         Some(i) => i,
         None => return &x[0..0],
@@ -59,7 +67,7 @@ pub fn trim_ascii_whitespace(x: &[u8]) -> &[u8] {
     &x[from..=to]
 }
 
-pub fn trim_start_str(x: &str) -> &str {
+fn trim_start_str(x: &str) -> &str {
     let pc = '\u{3000}';
     let mut i = 0;
 
@@ -86,32 +94,30 @@ mod tests {
 
     #[test]
     fn one_result() {
-        let str_skip = String::from("\u{3000}");
-
-        assert_eq!("", trim_start_str(str_skip.as_str()));
+        assert_eq!("", trim_start_str("\u{3000}"));
     }
 
     #[test]
     fn two_result() {
-        let byte_same = "第六百一十八章 墨蛟与神宫";
-
-        assert_eq!(byte_same, trim_start_str(byte_same));
+        assert_eq!(
+            "第六百一十八章 墨蛟与神宫",
+            trim_start_str("第六百一十八章 墨蛟与神宫")
+        );
     }
 
     #[test]
     fn three_result() {
-        let str_full = String::from("\u{3000}“别老一惊一乍的！又怎么了！？”");
-        let str_content = String::from("“别老一惊一乍的！又怎么了！？”");
-
-        assert_eq!(str_content, trim_start_str(str_full.as_str()));
+        assert_eq!(
+            "“别老一惊一乍的！又怎么了！？”",
+            trim_start_str("\u{3000}“别老一惊一乍的！又怎么了！？”")
+        );
     }
 
     #[test]
     fn four_result() {
-        let str_full =
-            String::from("\u{3000}\u{3000}\u{3000}\u{3000}“别老一惊一乍的！又怎么了！？”");
-        let str_content = String::from("“别老一惊一乍的！又怎么了！？”");
-
-        assert_eq!(str_content, trim_start_str(str_full.as_str()));
+        assert_eq!(
+            "“别老一惊一乍的！又怎么了！？”",
+            trim_start_str("\u{3000}\u{3000}\u{3000}\u{3000}“别老一惊一乍的！又怎么了！？”")
+        );
     }
 }
