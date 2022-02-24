@@ -28,6 +28,7 @@ fn main() {
 
     match rfit::run(&config) {
         Ok(()) => {
+            // set the log level: export RUST_LOG=info
             info!(
                 "Success!. Format for the file: {}, and the formatted file is: {}",
                 config.from_filename, config.to_filename

@@ -21,6 +21,8 @@ rfit 1.txt 2.txt
 ## 2. 编码原则
 
 * 尽量遵守 Rust 编码的 Idiomatic
+* 本项目较简单，只包含了单元测试；而没有包含集成测试
 * 利用 log 配合 env_logger 来输出日志
-* 利用 snafu 来创建 Error 类型，并遵循 snafu 提倡的 Error Handle philosophy
+  * 设置日志级别：export RUST_LOG=info
+* 利用 snafu 来创建 Error 类型，并遵循 snafu 提倡的 Error Handling philosophy
 * 目前使用的 IDE 是：Visual Stadio Code
