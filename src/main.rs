@@ -2,17 +2,15 @@ use log::error;
 use log::info;
 use std::env;
 
-use rfit::{ArgumentError, Config, Error};
+use rfit::Config;
 
-fn main() -> Result<(), Error> {
+fn main() {
     env_logger::init();
 
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
-        return ArgumentError {
-            message: String::from("not enough arguments"),
-        }
-        .fail();
+        error!("failed. bad arguments number");
+        return;
     }
 
     let from_filename = args[1].clone();
@@ -39,6 +37,4 @@ fn main() -> Result<(), Error> {
             error!("failed. the error is: {}", e);
         }
     };
-
-    Ok(())
 }
