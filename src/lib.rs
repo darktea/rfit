@@ -2,10 +2,9 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::{prelude::*, BufReader, BufWriter};
 
-use snafu::{ResultExt, Snafu};
+use snafu::prelude::*;
 
 #[derive(Debug, Snafu)]
-#[snafu(visibility = "pub")]
 pub enum Error {
     #[snafu(display("failed for io error: {}", source))]
     IoError { source: std::io::Error },
@@ -21,7 +20,7 @@ pub struct Config<'a> {
 }
 
 pub fn run(config: &Config) -> Result<()> {
-    let file = File::open(config.from_filename).context(IoError)?;
+    let file = File::open(config.from_filename).context(IoSnafu)?;
     let reader = BufReader::new(file);
 
     // fail if file exists
@@ -29,12 +28,12 @@ pub fn run(config: &Config) -> Result<()> {
         .write(true)
         .create_new(true)
         .open(config.to_filename)
-        .context(IoError)?;
+        .context(IoSnafu)?;
     let mut writer = BufWriter::new(to_file);
 
     let eof = "\n\n";
     for line in reader.lines() {
-        let string_line = line.context(IoError)?;
+        let string_line = line.context(IoSnafu)?;
         let skip_line = trim_start_str(string_line.as_str());
         let bytes_line = trim_ascii_whitespace(skip_line.as_bytes());
 
@@ -43,10 +42,10 @@ pub fn run(config: &Config) -> Result<()> {
             continue;
         }
 
-        writer.write_all(bytes_line).context(IoError)?;
-        writer.write_all(eof.as_bytes()).context(IoError)?;
+        writer.write_all(bytes_line).context(IoSnafu)?;
+        writer.write_all(eof.as_bytes()).context(IoSnafu)?;
     }
-    writer.flush().context(IoError)?;
+    writer.flush().context(IoSnafu)?;
 
     Ok(())
 }
