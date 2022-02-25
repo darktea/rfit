@@ -69,19 +69,19 @@ fn trim_ascii_whitespace(x: &[u8]) -> &[u8] {
 
 fn trim_start_str(x: &str) -> &str {
     let pc = '\u{3000}';
-    let mut i = 0;
+    let length = x.len();
 
-    let mut un_match = false;
+    let mut i = 0;
     for c in x.chars() {
         if pc == c {
             i += 1;
         } else {
-            un_match = true;
             break;
         }
     }
 
-    if un_match {
+    if i < length {
+        // because the bytes length of the '\u{3000}' is 3, should use i * 3
         &x[i * 3..]
     } else {
         &x[0..0]
