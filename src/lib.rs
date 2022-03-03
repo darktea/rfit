@@ -71,14 +71,8 @@ fn trim_start_str(x: &str) -> &str {
     let pc = '\u{3000}';
     let length = x.len();
 
-    let mut i = 0;
-    for c in x.chars() {
-        if pc == c {
-            i += 1;
-        } else {
-            break;
-        }
-    }
+    // trim from string begin for the specific char：'\u{3000}'
+    let i = x.chars().filter(|c| *c == pc).count();
 
     if i < length {
         // because the bytes length of the '\u{3000}' is 3, should use i * 3
