@@ -70,16 +70,18 @@ fn trim_ascii_whitespace(x: &[u8]) -> &[u8] {
 fn trim_start_str(x: &str) -> &str {
     let pc = '\u{3000}';
     let length = x.len();
-
-    // trim from string begin for the specific char：'\u{3000}'
-    let i = x.chars().filter(|c| *c == pc).count();
-
-    if i < length {
-        // because the bytes length of the '\u{3000}' is 3, should use i * 3
-        &x[i * 3..]
-    } else {
-        &x[0..0]
+    if length == 0 {
+        return &x[0..0];
     }
+
+    // take_while on the char：'\u{3000}'
+    let i = x.chars().take_while(|c| *c == pc).count();
+
+    // because the bytes length of the '\u{3000}' is 3, should use i * 3
+    let cut_length = i * 3;
+
+    // cut all '\u{3000}' in the begin
+    &x[cut_length..]
 }
 
 #[cfg(test)]
@@ -112,6 +114,16 @@ mod tests {
         assert_eq!(
             "“别老一惊一乍的！又怎么了！？”",
             trim_start_str("\u{3000}\u{3000}\u{3000}\u{3000}“别老一惊一乍的！又怎么了！？”")
+        );
+    }
+
+    #[test]
+    fn five_result() {
+        assert_eq!(
+            "“别老一惊\u{3000}一乍的！又怎\u{3000}么了！？”",
+            trim_start_str(
+                "\u{3000}\u{3000}\u{3000}\u{3000}“别老一惊\u{3000}一乍的！又怎\u{3000}么了！？”"
+            )
         );
     }
 }
