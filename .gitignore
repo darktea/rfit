@@ -12,3 +12,7 @@ Cargo.lock
 .idea
 
 .vscode
+
+*.txt
+
+.DS_Store
