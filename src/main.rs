@@ -1,20 +1,31 @@
+use clap::{Arg, Command};
 use log::error;
 use log::info;
-use std::env;
 
 use rfit::Config;
 
 fn main() {
     env_logger::init();
 
-    let args: Vec<String> = env::args().collect();
-    if args.len() < 3 {
-        error!("failed. bad arguments number");
-        return;
-    }
+    let matches = Command::new("rfit")
+        .arg(
+            Arg::new("infile")
+                .short('i')
+                .help("read from an input txt file")
+                .takes_value(true)
+                .required(true),
+        )
+        .arg(
+            Arg::new("outfile")
+                .short('o')
+                .help("write the result to an output txt file")
+                .takes_value(true)
+                .required(true),
+        )
+        .get_matches();
 
-    let from_filename = args[1].clone();
-    let to_filename = args[2].clone();
+    let from_filename = matches.value_of("infile").unwrap().to_string();
+    let to_filename = matches.value_of("outfile").unwrap().to_string();
 
     let config = Config {
         from_filename: &from_filename,
