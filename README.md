@@ -13,9 +13,9 @@
 简单的使用方法：
 
 ```bash
-# 1.txt 是需要被格式化的文本文件
-# 2.txt 是格式化后的结果文本文件
-rfit 1.txt 2.txt
+# infile 是需要被格式化的文本文件
+# outfile 是格式化后的结果文本文件
+rfit -i <infile> -o <outfile>
 ```
 
 ## 2. 编码原则
@@ -25,4 +25,4 @@ rfit 1.txt 2.txt
 * 利用 log 配合 env_logger 来输出日志
   * 设置日志级别：export RUST_LOG=info
 * 利用 snafu 来创建 Error 类型，并遵循 snafu 提倡的 Error Handling philosophy
-* 目前使用的 IDE 是：Visual Stadio Code
+* 目前使用的 IDE 是：Visual Studio Code
